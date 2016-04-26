@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TObject unit="System">
+  <EArgumentException>
+    <EHash unit="BCrypt"/>
+  </EArgumentException>
+  <TBCryptHash unit="BCrypt"/>
+</TObject>
