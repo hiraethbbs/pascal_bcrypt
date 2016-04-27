@@ -8,8 +8,12 @@ If you try to verify a $2a$ password with PHP it will verify, but if you run the
 
 Tested with :
   * Free Pascal
-    * 2.6.4 (Linux, Gentoo)
-    * 3.0.0 (Linux, Gentoo)
+    * 2.6.4 
+      * (Linux, Gentoo)
+      * (Linux, Raspbian)
+    * 3.0.0
+      * (Linux, Gentoo)
+      * (Win10, 64bit) 
   * PHP
     * 5.6.20-pl0-gentoo
     * 7.0.6_rc1-pl0-gentoo.
