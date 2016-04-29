@@ -1,0 +1,3 @@
+[submodule "renegade_random"]
+	path = renegade_random
+	url = https://github.com/renegadebbs/renegade_random.git
