@@ -247,9 +247,8 @@ end;
 
 implementation
 
-uses
-  Math,
-  RegExpr;
+Uses
+  Math; // @Todo : Remove and use Renegade.Random
 
 constructor TBCryptHash.Create;
    begin
@@ -503,8 +502,8 @@ end;
 
 function TBCryptHash.FormatPasswordHash(const Salt, Hash: TBytes; Cost : Byte; HashType : THashTypes): AnsiString;
 var
-  saltString: ansistring;
-  hashString: ansistring;
+  SaltString: ansistring;
+  HashString: ansistring;
   HashPrefix : AnsiString;
 begin
   case HashType of
@@ -515,9 +514,9 @@ begin
     HashPrefix := '2y';
   end;
  end;
-  saltString := BsdBase64Encode(Salt, Length(Salt));
-  hashString := BsdBase64Encode(Hash, Length(MagicText) * 4 - 1);
-  Result := Format('$%s$%d$%s%s', [HashPrefix, Cost, saltString, hashString]);
+  SaltString := BsdBase64Encode(Salt, Length(Salt));
+  HashString := BsdBase64Encode(Hash, Length(MagicText) * 4 - 1);
+  Result := Format('$%s$%d$%s%s', [HashPrefix, Cost, SaltString, HashString]);
 end;
 
 function TBCryptHash.getRandomBlockFileName : AnsiString;
@@ -737,19 +736,28 @@ end;
 
 function TBCryptHash.VerifyHash(const Password, Hash : AnsiString) : Boolean;
 var
-  RegexObj: TRegExpr;
-  WorkingBcryptHash : AnsiString;
-  HashCounter, ResultStatus, Cost : Byte;
+  WorkingBcryptHash, Salt : AnsiString;
+  HashCounter, ResultStatus, BCryptCost : Byte;
   HashType : THashTypes;
+  PasswordInfo :RTPasswordInformation;
 Begin
   ResultStatus := 0;
-  RegexObj := TRegExpr.Create;
-  RegexObj.Expression := '^(\$2\w{1}\$)(\d{2})\$([\./0-9A-Za-z]{22})';
-  if RegexObj.Exec(Hash) then
+  try
+    PasswordInfo := HashGetInfo(Hash);
+  except
+    on e: EHash do
+      begin
+        Result := False;
+        Exit;
+      end;
+  end;
+  with PasswordInfo do
     begin
-      HashType := ResolveHashType(RegexObj.Match[1]);
-      Cost := StrToInt(RegexObj.Match[2]);
-      WorkingBcryptHash := Crypt(Password, RegexObj.Match[3], Cost, HashType);
+        HashType := Algo;
+        BCryptCost := Cost;
+        Salt := BCryptSalt;
+    end;
+      WorkingBcryptHash := Crypt(Password, Salt, BCryptCost, HashType);
       if (Length(WorkingBcryptHash) < 60) or (Length(WorkingBcryptHash) > 60) then
         begin
           Result := False;
@@ -769,12 +777,9 @@ Begin
         values. }
         ResultStatus := ResultStatus or (ord(WorkingBcryptHash[HashCounter]) xor ord(Hash[HashCounter]));
       end;
+
       Result := (ResultStatus = 0);
-    end
-    else begin
-      Result := False;
-  end;
-  RegexObj.Free;
+
 end;
 
 function TBCryptHash.NeedsRehash(const BCryptHash : AnsiString) : Boolean; overload;
