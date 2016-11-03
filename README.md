@@ -9,14 +9,30 @@ If you try to verify a $2a$ password with PHP it will verify, but if you run the
 Tested with :
   * Free Pascal
     * 2.6.4 
-      * (Linux, Gentoo)
-      * (Linux, Raspbian)
+      * Linux
+        * Gentoo, 2.2-Current-x64
+        * Raspbian
     * 3.0.0
-      * (Linux, Gentoo)
-      * (Win10, 64bit) 
+      * Linux
+        * Gentoo, 2.2-Current-x64
+      * FreeBSD
+        * 12.0-CURRENT-x64
+      * Windows
+        * Windows 10-x64
   * PHP
-    * 5.6.20-pl0-gentoo
-    * 7.0.6_rc1-pl0-gentoo.
+    * 5.5.x
+      * 5.5.38-pl0-gentoo
+    * 5.6.x
+      * 5.6.20-pl0-gentoo
+      * 5.6.28-pl0-gentoo
+    * 7.0.x
+      * 7.0.6_rc1-pl0-gentoo
+      * 7.0.13-pl0-gentoo
+    * 7.x.x (dev)
+      * 7.2.0-dev-x64 (ZTS) 10/31/2016, Gentoo 2.2 Current
+      * 7.2.0-dev-x64 (ZTS) 11/02/2016, FreeBSD 12.0-CURRENT
+  * HHVM
+    * Soon
 
 ### Usage
 ```pascal
