@@ -19,6 +19,10 @@ Tested with :
             * 12.0-CURRENT-x64
         * Windows
             * Windows 10-x64
+    * 3.1.1
+        * Linux
+            * Gentoo, 2.2-Current-x64
+
   * PHP
     * 5.5.x
       * 5.5.38-pl0-gentoo
