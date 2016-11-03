@@ -1,3 +1,14 @@
+{**
+ *
+ * This file is part of the RenegadeBBS project.
+ *
+ * sikofitt <sikofitt@gmail.com>
+ *
+ * For the full copyright and license information,
+ * pleave view the LICENSE file that was distributed
+ * with this source code.
+ *
+ *}
 unit BCrypt;
 {$mode objfpc}{$H+}
 {$codepage utf8}
