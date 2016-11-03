@@ -9,16 +9,16 @@ If you try to verify a $2a$ password with PHP it will verify, but if you run the
 Tested with :
   * Free Pascal
     * 2.6.4 
-      * Linux
-        * Gentoo, 2.2-Current-x64
-        * Raspbian
+        * Linux
+            * Gentoo, 2.2-Current-x64
+            * Raspbian
     * 3.0.0
-      * Linux
-        * Gentoo, 2.2-Current-x64
-      * FreeBSD
-        * 12.0-CURRENT-x64
-      * Windows
-        * Windows 10-x64
+        * Linux
+            * Gentoo, 2.2-Current-x64
+        * FreeBSD
+            * 12.0-CURRENT-x64
+        * Windows
+            * Windows 10-x64
   * PHP
     * 5.5.x
       * 5.5.38-pl0-gentoo
