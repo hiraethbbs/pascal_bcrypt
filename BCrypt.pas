@@ -740,7 +740,7 @@ begin
     end;
   else
    begin
-     Result := (bcPHP);
+     Result := (bcUnknown);
    end;
   end;
 end;
