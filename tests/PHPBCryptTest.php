@@ -14,6 +14,8 @@ assert_options(ASSERT_CALLBACK, 'bcrypt_assert_handler');
 
 $bsdPascalHash = '$2a$12$9NWTTEbRtjLNd4KdW.VtUekFA6pJ3DF23FqdvwwvMtoMD9zqdaZg2';
 $bsdPascalHashFail = '$2a$12$9NWTTEbRtjLNd4KdW.VtUekFA6pJ3DF23FqdvwwvMtoMD9zqdaZg1';
+$utf8String = 'Τη γλώσσα μου έδωσαν ελληνική';
+$utf8PascalHash = '$2y$12$RSxqgCt5T4qPXLM3AzKMCueMBZo6cc9o/bN4wqcX6KA6lZnOkqzTG';
 
 $pascalHashesMT = [
   '$2y$10$kJgRFQ993paFLArmPE3gn.8yuUB/SRpaEw7lkJJ1oVqhWVIecI5nO',
@@ -34,6 +36,13 @@ $pascalHashesURandom = [
   '$2y$15$ELRZS1FLgo4.vVkJNqsnPeaKkUeHgIGLP42aHWHHc8ze8gUQviApO',
   '$2y$16$Y0QNc8vaJJY5mQO0IkN6oeAxEVjtnHYqk0WeWLPm7bRjxA7fWHRBG',
 ];
+
+print PHP_EOL . 'Testing UTF8Hashe ... ' . str_repeat(PHP_EOL, 2);
+print 'Testing : ' . $utf8PascalHash;
+print PHP_EOL . ' with   : ' . $utf8String;
+if(true === assert(password_verify($utf8String, $utf8PascalHash), ' - Fail')) {
+  print ' - Pass' . PHP_EOL;
+}
 
 print PHP_EOL . 'Testing bsdPascalHash ... ' . str_repeat(PHP_EOL, 2);
 print 'Testing : ' . $bsdPascalHash;
