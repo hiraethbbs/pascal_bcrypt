@@ -2,6 +2,7 @@ Program BCryptHashTest;
 {$mode objfpc}{$H+}
 {$ASSERTIONS ON}
 {$UNITPATH ../}
+{$CODEPAGE UTF-8}
 
 uses BCrypt, Classes, SysUtils, Crt;
 const
@@ -20,6 +21,10 @@ var
   FailedAssertions,
   PassedAssertions : Word;
   Passed : Boolean;
+
+  UTF8TestString : UTF8String = 'Τη γλώσσα μου έδωσαν ελληνική';
+  UTF8TestHash : AnsiString = '$2y$12$RSxqgCt5T4qPXLM3AzKMCueMBZo6cc9o/bN4wqcX6KA6lZnOkqzTG';
+  UTF8PHPHash : AnsiString = '$2y$12$KrBUSn54WO5C/aw2H3imKurgsnrGq7PsrIZYXusaTNIO.27IGsmkG';
 
   PasswordHashes : array [1..14] of AnsiString = (
     '$2y$10$LCb3aOt8lAXSzNrEpQKDQO1zc2wCCQltrDwSEbb9JaUo4OKbphC3i',
@@ -104,95 +109,127 @@ for i := 1 to 7 do
       WriteLn(' - Pass');
       Inc(PassedAssertions);
   end;
-WriteLn(#10#13'Testing Failures ...'#10#13);
-for i := 1 to 7 do
-  begin
-    Write('Testing : ', PasswordHashFailures[i]);
-    try
-      Assert(TBCrypt.VerifyHash(StaticPassword, PasswordHashFailures[i]) = False, 'Should Be False');
-      Inc(Assertions);
-    except
-      on e: EAssertionFailed do
-        begin
-          WriteLn(' - Fail');
-          Inc(FailedAssertions);
-          Continue;
-        end;
-    end;
-    WriteLn(' - Pass');
+WriteLn(#10#13'Testing UTF8 with ', UTF8TestString, ' ... '#10#13);
+  Write('Testing : ', UTF8TestHash);
+  try
+    Assert(TBCrypt.VerifyHash(UTF8TestString, UTF8TestHash) = True, 'Should Be True');
+    Inc(Assertions);
     Inc(PassedAssertions);
+    Writeln(' - Pass');
+  except
+    on e: EAssertionFailed do
+    begin
+      WriteLn(' - Fail');
+      Inc(FailedAssertions);
+      Dec(PassedAssertions);
+    end;
+    end;
 
+  WriteLn(#10#13'Testing UTF8 PHP Hash with ', UTF8TestString, ' ... '#10#13);
+  Write('Testing : ', UTF8PHPHash);
+  try
+    Assert(TBCrypt.VerifyHash(UTF8TestString, UTF8PHPHash) = True, 'Should Be True');
+    Inc(Assertions);
+    Inc(PassedAssertions);
+    Writeln(' - Pass');
+  except
+  on e: EAssertionFailed do
+  begin
+    WriteLn(' - Fail');
+    Inc(FailedAssertions);
+    Dec(PassedAssertions);
+  end;
   end;
 
-WriteLn(#10#13'Testing Rehash True ...'#10#13);
-for i := 1 to 7 do
-  begin
-    Write('Testing : ', PasswordHashes[i]);
-    try
-      Assert(TBCrypt.NeedsRehash(PasswordHashes[i], 17) = True, 'Should Be True');
-      Inc(Assertions);
-    except
+    WriteLn(#10#13'Testing Failures ...'#10#13);
+    for i := 1 to 7 do
+    begin
+      Write('Testing : ', PasswordHashFailures[i]);
+      try
+        Assert(TBCrypt.VerifyHash(StaticPassword, PasswordHashFailures[i]) = False, 'Should Be False');
+        Inc(Assertions);
+      except
       on e: EAssertionFailed do
-        begin
-          WriteLn(' - Fail');
-          Inc(FailedAssertions);
-          Continue;
-        end;
-    end;
-    WriteLn(' - Pass');
-    Inc(PassedAssertions);
-  end;
+      begin
+        WriteLn(' - Fail');
+        Inc(FailedAssertions);
+        Continue;
+      end;
+      end;
+      WriteLn(' - Pass');
+      Inc(PassedAssertions);
 
-  WriteLn(#10#13'Testing Rehash False ...'#10#13);
-  j := 10;
-  for i := 1 to 7 do
+    end;
+
+    WriteLn(#10#13'Testing Rehash True ...'#10#13);
+    for i := 1 to 7 do
+    begin
+      Write('Testing : ', PasswordHashes[i]);
+      try
+        Assert(TBCrypt.NeedsRehash(PasswordHashes[i], 17) = True, 'Should Be True');
+        Inc(Assertions);
+      except
+      on e: EAssertionFailed do
+      begin
+        WriteLn(' - Fail');
+        Inc(FailedAssertions);
+        Continue;
+      end;
+      end;
+      WriteLn(' - Pass');
+      Inc(PassedAssertions);
+    end;
+
+    WriteLn(#10#13'Testing Rehash False ...'#10#13);
+    j := 10;
+    for i := 1 to 7 do
     begin
       Write('Testing : ', PasswordHashes[i]);
       try
         Assert(TBCrypt.NeedsRehash(PasswordHashes[i], j) = False, 'Should Be False');
         Inc(Assertions);
       except
-        on e: EAssertionFailed do
-          begin
-            WriteLn(' - Fail');
-            Inc(FailedAssertions);
-            Inc(j);
-            Continue;
-          end;
+      on e: EAssertionFailed do
+      begin
+        WriteLn(' - Fail');
+        Inc(FailedAssertions);
+        Inc(j);
+        Continue;
+      end;
       end;
       WriteLn(' - Pass');
       Inc(PassedAssertions);
       Inc(j);
     end;
 
-  WriteLn(#10#13'Testing HashGetInfo on hash '#10#13, HashToMatch2, ' ...'#10#13);
-  PasswordInfo := TBCrypt.HashGetInfo(HashToMatch2);
-  Passed := True;
-  With PasswordInfo do
-  begin
-    Writeln('Algo : ', Algo);
-    try
-      Assert(Algo = bcPHP);
-      Inc(Assertions);
-    except
+    WriteLn(#10#13'Testing HashGetInfo on hash '#10#13, HashToMatch2, ' ...'#10#13);
+    PasswordInfo := TBCrypt.HashGetInfo(HashToMatch2);
+    Passed := True;
+    With PasswordInfo do
+    begin
+      Writeln('Algo : ', Algo);
+      try
+        Assert(Algo = bcPHP);
+        Inc(Assertions);
+      except
       on e: EAssertionFailed do
       begin
         Inc(FailedAssertions);
       end;
-    end;
-    WriteLn('AlgoName : ', AlgoName);
-    WriteLn('Cost : ', Cost);
-    Write('Salt : ', BCryptSalt);
-    try
-      Assert(Length(BCryptSalt) = 22, 'Should Be True');
-      Inc(Assertions);
-    except
+      end;
+      WriteLn('AlgoName : ', AlgoName);
+      WriteLn('Cost : ', Cost);
+      Write('Salt : ', BCryptSalt);
+      try
+        Assert(Length(BCryptSalt) = 22, 'Should Be True');
+        Inc(Assertions);
+      except
       on e: EAssertionFailed do
-        begin
-          Passed := False;
-        end;
-    end;
-    if Passed = False then
+      begin
+        Passed := False;
+      end;
+      end;
+      if Passed = False then
       begin
         Writeln(' Length - Fail');
         Inc(FailedAssertions);
@@ -207,51 +244,51 @@ for i := 1 to 7 do
         Assert(Length(BCryptHash) = 31, 'Should Be True');
         Inc(Assertions);
       except
-        on e: EAssertionFailed do
-          begin
-            Passed := False;
-          end;
+      on e: EAssertionFailed do
+      begin
+        Passed := False;
+      end;
       end;
       if Passed = False then
-        begin
-          Writeln(' Length - Fail');
-          Inc(FailedAssertions);
-        end else
-        begin
-          Writeln(' Length - Pass');
-          Inc(PassedAssertions);
-        end;
+      begin
+        Writeln(' Length - Fail');
+        Inc(FailedAssertions);
+      end else
+      begin
+        Writeln(' Length - Pass');
+        Inc(PassedAssertions);
+      end;
 
-  end;
+    end;
 
-  WriteLn(#10#13'Testing HashGetInfo on bsd hash '#10#13, BSDHashToMatch, ' ...'#10#13);
-  PasswordInfo := TBCrypt.HashGetInfo(BSDHashToMatch);
-  Passed := True;
-  With PasswordInfo do
-  begin
-    Writeln('Algo : ', Algo);
-    try
-      Assert(Algo = bcBSD);
-      Inc(Assertions);
-    except
+    WriteLn(#10#13'Testing HashGetInfo on bsd hash '#10#13, BSDHashToMatch, ' ...'#10#13);
+    PasswordInfo := TBCrypt.HashGetInfo(BSDHashToMatch);
+    Passed := True;
+    With PasswordInfo do
+    begin
+      Writeln('Algo : ', Algo);
+      try
+        Assert(Algo = bcBSD);
+        Inc(Assertions);
+      except
       on e: EAssertionFailed do
       begin
         Inc(FailedAssertions);
       end;
-    end;
-    WriteLn('AlgoName : ', AlgoName);
-    WriteLn('Cost : ', Cost);
-    Write('Salt : ', BCryptSalt);
-    try
-      Assert(Length(BCryptSalt) = 22, 'Should Be True');
-      Inc(Assertions);
-    except
+      end;
+      WriteLn('AlgoName : ', AlgoName);
+      WriteLn('Cost : ', Cost);
+      Write('Salt : ', BCryptSalt);
+      try
+        Assert(Length(BCryptSalt) = 22, 'Should Be True');
+        Inc(Assertions);
+      except
       on e: EAssertionFailed do
-        begin
-          Passed := False;
-        end;
-    end;
-    if Passed = False then
+      begin
+        Passed := False;
+      end;
+      end;
+      if Passed = False then
       begin
         Writeln(' Length - Fail');
         Inc(FailedAssertions);
@@ -266,36 +303,36 @@ for i := 1 to 7 do
         Assert(Length(BCryptHash) = 31, 'Should Be True');
         Inc(Assertions);
       except
-        on e: EAssertionFailed do
-          begin
-            Passed := False;
-          end;
+      on e: EAssertionFailed do
+      begin
+        Passed := False;
+      end;
       end;
       if Passed = False then
-        begin
-          Writeln(' Length - Fail');
-          Inc(FailedAssertions);
-        end else
-        begin
-          Writeln(' Length - Pass');
-          Inc(PassedAssertions);
-        end;
+      begin
+        Writeln(' Length - Fail');
+        Inc(FailedAssertions);
+      end else
+      begin
+        Writeln(' Length - Pass');
+        Inc(PassedAssertions);
+      end;
 
-  end;
+    end;
 
-  Writeln(#10#13'Testing PasswordInfo with bad Hashes.'#10#13);
-  Passed := False;
-  try
-    Write('Short Hash : ', ShortHash);
-    PasswordInfo := TBCrypt.HashGetInfo(ShortHash);
-    Inc(Assertions);
-  except
+    Writeln(#10#13'Testing PasswordInfo with bad Hashes.'#10#13);
+    Passed := False;
+    try
+      Write('Short Hash : ', ShortHash);
+      PasswordInfo := TBCrypt.HashGetInfo(ShortHash);
+      Inc(Assertions);
+    except
     on e: EHash do
     begin
       Passed := True;
     end;
-  end;
-  if Passed = True then
+    end;
+    if Passed = True then
     begin
       Writeln(' - Pass');
       Inc(PassedAssertions);
@@ -304,18 +341,18 @@ for i := 1 to 7 do
       Writeln(' - Fail');
       Inc(FailedAssertions);
     end;
-  Passed := False;
-  try
-    Write('Long Hash  : ', LongHash);
-    PasswordInfo := TBCrypt.HashGetInfo(LongHash);
-    Inc(Assertions);
-  except
+    Passed := False;
+    try
+      Write('Long Hash  : ', LongHash);
+      PasswordInfo := TBCrypt.HashGetInfo(LongHash);
+      Inc(Assertions);
+    except
     on e: EHash do
     begin
       Passed := True;
     end;
-  end;
-  if Passed = True then
+    end;
+    if Passed = True then
     begin
       Writeln(' - Pass');
       Inc(PassedAssertions);
@@ -325,20 +362,19 @@ for i := 1 to 7 do
       Inc(FailedAssertions);
     end;
 
+    Writeln(#10#13'Testing hashing ...'#10#13);
+    Writeln(TBCrypt.CreateHash(StaticPassword));
+    Writeln(TBCrypt.CreateHash(StaticPassword, bcBSD));
+    Writeln(TBCrypt.CreateHash(StaticPassword, bcDefault));
+    Writeln(TBCrypt.CreateHash(StaticPassword, bcPHP));
+    Writeln(TBCrypt.CreateHash(StaticPassword, bcBSD, 14));
+    Writeln(TBCrypt.CreateHash(StaticPassword, bcDefault, 14));
+    Writeln(TBCrypt.CreateHash(StaticPassword, bcPHP, 14));
+    Writeln(#10#13);
 
-  Writeln(#10#13'Testing hashing ...'#10#13);
-  Writeln(TBCrypt.CreateHash(StaticPassword));
-  Writeln(TBCrypt.CreateHash(StaticPassword, bcBSD));
-  Writeln(TBCrypt.CreateHash(StaticPassword, bcDefault));
-  Writeln(TBCrypt.CreateHash(StaticPassword, bcPHP));
-  Writeln(TBCrypt.CreateHash(StaticPassword, bcBSD, 14));
-  Writeln(TBCrypt.CreateHash(StaticPassword, bcDefault, 14));
-  Writeln(TBCrypt.CreateHash(StaticPassword, bcPHP, 14));
-  Writeln(#10#13);
-
-TBCrypt.Free;
-  Writeln('Assertions        : ', Assertions);
-  Writeln('Passed Assertions : ', PassedAssertions);
-  Writeln('Failed Assertions : ', FailedAssertions);
-  Writeln;
-end.
+    TBCrypt.Free;
+    Writeln('Assertions        : ', Assertions);
+    Writeln('Passed Assertions : ', PassedAssertions);
+    Writeln('Failed Assertions : ', FailedAssertions);
+    Writeln;
+  end.

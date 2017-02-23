@@ -11,13 +11,16 @@
  *}
 unit BCrypt;
 {$mode objfpc}{$H+}
-{$codepage utf8}
+{$CODEPAGE UTF-8}
 
 interface
 
 uses
-  SysUtils,
-  Classes;
+  sysutils,
+  classes
+  ;
+
+
 
 const
   // bcrypt uses 128-bit (16-byte) salt
@@ -219,6 +222,7 @@ type
     BCryptSalt,
     BCryptHash : AnsiString;
   end;
+  UTF8String = type AnsiString(CP_UTF8);
 
 EHash = class(EArgumentException);
 
@@ -228,7 +232,7 @@ private
   FPBox: array[0..17] of DWord;
   function BsdBase64Encode(const RawByteData: TBytes; CharacterLength: Sizeint): AnsiString;
   function BsdBase64Decode(const EncodedString : AnsiString): TBytes;
-  function Crypt(const Password, Salt : AnsiString; Cost : Byte; HashType : THashTypes) : AnsiString;
+  function Crypt(const Password : UTF8String; const Salt : AnsiString; Cost : Byte; HashType : THashTypes) : AnsiString;
   function CryptRaw(const HashKey, Salt: TBytes; Cost : Byte): TBytes;
   procedure EKSKey(const Salt, HashKey: TBytes);
   procedure Encipher(var lr: array of DWord; const offset: SizeInt);
@@ -247,10 +251,10 @@ private
 public
   constructor Create; overload;
   destructor Destroy; override;
-  function CreateHash(const Password : AnsiString) : AnsiString; overload;
-  function CreateHash(const Password : AnsiString; HashType : THashTypes) : AnsiString; overload;
-  function CreateHash(const Password : AnsiString; HashType : THashTypes; Cost : Byte) : AnsiString; overload;
-  function VerifyHash(const Password, Hash : AnsiString) : Boolean;
+  function CreateHash(const Password : UTF8String) : AnsiString; overload;
+  function CreateHash(const Password : UTF8String; HashType : THashTypes) : AnsiString; overload;
+  function CreateHash(const Password : UTF8String; HashType : THashTypes; Cost : Byte) : AnsiString; overload;
+  function VerifyHash(const Password : UTF8STring; const Hash : AnsiString) : Boolean;
   function NeedsRehash(const BCryptHash : AnsiString) : Boolean; overload;
   function NeedsRehash(const BCryptHash : AnsiString; Cost : Byte) : Boolean; overload;
   function HashGetInfo(const Hash : AnsiString) : RTPasswordInformation;
@@ -263,6 +267,7 @@ Uses
 
 constructor TBCryptHash.Create;
    begin
+
      inherited Create;
    end;
 
@@ -687,16 +692,16 @@ begin
   Result := RandomFileBuffer;
 end; { TBCryptHash.unixRandomBytes }
 
-function TBCryptHash.CreateHash(const Password : AnsiString) : AnsiString; overload;
+function TBCryptHash.CreateHash(const Password : UTF8String) : AnsiString; overload;
 begin
   Result := CreateHash(Password, bcPHP, BCRYPT_DEFAULT_COST);
 end;
-function TBCryptHash.CreateHash(const Password : AnsiString; HashType : THashTypes) : AnsiString; overload;
+function TBCryptHash.CreateHash(const Password : UTF8String; HashType : THashTypes) : AnsiString; overload;
 begin
  Result := CreateHash(Password, HashType, BCRYPT_DEFAULT_COST);
 end; { TBCryptHash.CreateHash }
 
-function TBCryptHash.CreateHash(const Password : AnsiString; HashType : THashTypes; Cost : Byte) : AnsiString; overload;
+function TBCryptHash.CreateHash(const Password : UTF8String; HashType : THashTypes; Cost : Byte) : AnsiString; overload;
 var
   PasswordKey,
   SaltBytes,
@@ -714,7 +719,7 @@ begin
  Result := FormatPasswordHash(SaltBytes, Hash, Cost, HashType);
 end; { TBCryptHash.CreateHash }
 
-function TBCryptHash.Crypt(const Password, Salt : AnsiString; Cost : Byte; HashType : THashTypes) : AnsiString;
+function TBCryptHash.Crypt(const Password : UTF8String; const Salt : AnsiString; Cost : Byte; HashType : THashTypes) : AnsiString;
 var
   PasswordKey,
   SaltBytes,
@@ -745,7 +750,7 @@ begin
   end;
 end;
 
-function TBCryptHash.VerifyHash(const Password, Hash : AnsiString) : Boolean;
+function TBCryptHash.VerifyHash(const Password : UTF8String; const Hash : AnsiString) : Boolean;
 var
   WorkingBcryptHash, Salt : AnsiString;
   HashCounter, ResultStatus, BCryptCost : Byte;
