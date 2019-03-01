@@ -486,7 +486,6 @@ begin
   end;
 end; { TBCryptHash.EKSKey }
 
-{$OVERFLOWCHECKS OFF}
 procedure TBCryptHash.Encipher(var lr: array of DWord; const offset: SizeInt);
 var
   i, n, block, r: DWord;
@@ -498,23 +497,22 @@ begin
   while i <= BLOWFISH_NUM_ROUNDS - 1 do
   begin
     n := FSBox[(block shr 24) and $FF];
-    n := n + FSBox[$100 or ((block shr 16) and $FF)];
+    n := DWord(n + FSBox[$100 or ((block shr 16) and $FF)]);
     n := n xor FSBox[$200 or ((block shr 8) and $FF)];
-    n := n + FSBox[$300 or (block and $FF)];
+    n := DWord(n + FSBox[$300 or (block and $FF)]);
     r := r xor (n xor FPBox[i]);
     Inc(i);
 
     n := FSBox[(r shr 24) and $FF];
-    n := n + FSBox[$100 or ((r shr 16) and $FF)];
+    n := DWord(n + FSBox[$100 or ((r shr 16) and $FF)]);
     n := n xor FSBox[$200 or ((r shr 8) and $FF)];
-    n := n + FSBox[$300 or (r and $FF)];
+    n := DWord(n + FSBox[$300 or (r and $FF)]);
     block := block xor (n xor FPBox[i]);
     Inc(i);
   end;
   lr[offset] := r xor FPBox[BLOWFISH_NUM_ROUNDS + 1];
   lr[offset + 1] := block;
 end;
-{$OVERFLOWCHECKS ON}
 
 function TBCryptHash.FormatPasswordHash(const Salt, Hash: TBytes; Cost : Byte; HashType : THashTypes): AnsiString;
 var
